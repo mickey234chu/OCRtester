@@ -60,6 +60,7 @@ public class CreditCardScannerActivity extends AppCompatActivity {
         // 檢查權限
         if (arePermissionsGranted()) {
             doBind();
+            //doBind2();
         } else {
             // 如果權限尚未授予，請求權限
             requestPermissions();
@@ -86,11 +87,13 @@ public class CreditCardScannerActivity extends AppCompatActivity {
                 ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
                 bindPreview(cameraProvider);
                 captureImage();
+
             } catch (ExecutionException | InterruptedException e) {
                 Log.e(TAG, "Error starting camera preview: " + e.getMessage());
             }
         }, ContextCompat.getMainExecutor(this));
     }
+
     private void bindPreview(@NonNull ProcessCameraProvider cameraProvider) {
 
         // 建立預覽用例
@@ -127,6 +130,7 @@ public class CreditCardScannerActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.e(TAG, "Error binding preview: " + e.getMessage());
         }
+
     }
     private void captureImage() {
         // 檢查相機是否已綁定預覽
@@ -190,6 +194,21 @@ public class CreditCardScannerActivity extends AppCompatActivity {
             Log.e(TAG, "Preview view or surface provider is null");
         }
     }
+
+
+
+    private void extractAndDisplayCreditCardNumber(String text) {
+        // 提取信用卡号码
+        String creditCardNumber = extractCreditCardNumber(text);
+
+        // 在UI线程中更新TextView，显示提取的信用卡号码
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                textView.setText(creditCardNumber);
+            }
+        });
+    }
     private String extractCreditCardNumber(String text) {
         // 使用正则表达式提取信用卡号码
         Pattern pattern = Pattern.compile("\\b\\d{4}[ -]?\\d{4}[ -]?\\d{4}[ -]?\\d{4}\\b");
@@ -223,6 +242,7 @@ public class CreditCardScannerActivity extends AppCompatActivity {
         if (requestCode == PERMISSION_REQUEST_CODE) {
             if (arePermissionsGranted()) {
                 doBind();
+
             } else {
                 // 如果權限未授予，可以顯示一個錯誤訊息或採取其他適當的操作
                 Toast.makeText(this, "Permissions not granted", Toast.LENGTH_SHORT).show();
